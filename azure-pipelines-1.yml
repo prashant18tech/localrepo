@@ -1,0 +1,33 @@
+trigger:
+- main  # or your branch name
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  resourceGroupName: 'myResourceGroup'
+  location: 'eastus'
+
+stages:
+- stage: Deploy
+  displayName: 'Create Resource Group Stage'
+  jobs:
+  - job: CreateRG
+    displayName: 'Create Azure Resource Group'
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Create Resource Group in Azure'
+      inputs:
+        azureSubscription: 'Azure-Terraform'  # Replace with your exact service connection name
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Creating resource group: ${{ variables.resourceGroupName }} in ${{ variables.location }}"
+          
+          # Create the resource group
+          az group create \
+            --name ${{ variables.resourceGroupName }} \
+            --location ${{ variables.location }}
+
+          # Check if it was created
+          az group show --name ${{ variables.resourceGroupName }} --output table
